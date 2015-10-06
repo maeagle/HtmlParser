@@ -53,7 +53,7 @@ public class BookOrderThread implements Runnable {
 				// System.out.println("Login Cookies : ");
 				// for (int i = 0; i < cookies.size(); i++)
 				// System.out.println("- " + cookies.get(i).toString());
-				System.out.println("＝＝＝＝＝＝＝＝＝登陆成功！");
+				//System.out.println("＝＝＝＝＝＝＝＝＝登陆成功！");
 			}
 		} catch (Exception e) {
 			System.out.println("＝＝＝＝＝＝＝＝＝登陆失败！");
@@ -72,7 +72,7 @@ public class BookOrderThread implements Runnable {
 			response = httpclient.execute(listPage);
 			HttpEntity entity = response.getEntity();
 			// System.out.println(EntityUtils.toString(entity));
-			System.out.println("＝＝＝＝＝＝＝＝＝读取出诊医生列表成功！");
+			//System.out.println("＝＝＝＝＝＝＝＝＝读取出诊医生列表成功！");
 		} catch (Exception e) {
 			System.out.println("＝＝＝＝＝＝＝＝＝读取出诊医生列表失败！");
 			e.printStackTrace();
@@ -90,7 +90,7 @@ public class BookOrderThread implements Runnable {
 			response = httpclient.execute(page2);
 			HttpEntity entity = response.getEntity();
 			// System.out.println(EntityUtils.toString(entity));
-			System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面成功！");
+			//System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面成功！");
 		} catch (Exception e) {
 			System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面失败！");
 			e.printStackTrace();
@@ -108,12 +108,12 @@ public class BookOrderThread implements Runnable {
 			response = httpclient.execute(page3);
 			HttpEntity entity = response.getEntity();
 			String result = EntityUtils.toString(entity);
-			 System.out.println(result);
 			if (result.indexOf("预约成功") > -1) {
 				successFlag.set(true);
+				System.out.println(result);
 				System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号成功！");
 			} else {
-				System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
+				//System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
 			}
 		} catch (Exception e) {
 			System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");

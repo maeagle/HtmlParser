@@ -13,14 +13,14 @@ public class BookOrderParser {
 
 	private static int currentCount = 0;
 
-	private static final String start_date_time = "2015-10-05 00:00:00";
+	private static final String start_date_time = "2015-10-06 00:00:00";
 	
 	public static void main(String[] args) throws Exception {
 
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date startDate = df.parse(start_date_time);
+		//DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//Date startDate = df.parse(start_date_time);
 		
-		startDate = new Date();
+		Date startDate = new Date();
 		
 		AtomicBoolean successFlag = new AtomicBoolean(false);
 		Timer timer = new Timer();
@@ -38,7 +38,7 @@ public class BookOrderParser {
 					timer.cancel();
 				}
 			}
-		}, startDate, 3000);
+		}, startDate, 1000);
 
 		System.out.println("第一次启动时间：" + startDate.toString());
 		System.in.read();
