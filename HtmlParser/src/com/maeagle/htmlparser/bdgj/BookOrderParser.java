@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BookOrderParser {
 
-	private static final int thread_to_run = 20;
+	private static final int thread_to_run = 30;
 
 	private static int currentCount = 0;
 
@@ -38,7 +38,7 @@ public class BookOrderParser {
 					timer.cancel();
 				}
 			}
-		}, startDate, 1000);
+		}, startDate, 500);
 
 		System.out.println("第一次启动时间：" + startDate.toString());
 		System.in.read();
