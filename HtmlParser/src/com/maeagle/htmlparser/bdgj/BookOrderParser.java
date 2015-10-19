@@ -1,7 +1,5 @@
 package com.maeagle.htmlparser.bdgj;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -9,19 +7,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BookOrderParser {
 
-	private static final int thread_to_run = 30;
+	private static final int thread_to_run = 20;
 
 	private static int currentCount = 0;
 
-	private static final String start_date_time = "2015-10-06 00:00:00";
-	
+	private static final String start_date_time = "2015-10-18 23:59:59";
+
 	public static void main(String[] args) throws Exception {
 
-		//DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		//Date startDate = df.parse(start_date_time);
-		
+		// DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		// Date startDate = df.parse(start_date_time);
+
 		Date startDate = new Date();
-		
+
 		AtomicBoolean successFlag = new AtomicBoolean(false);
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {

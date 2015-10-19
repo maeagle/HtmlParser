@@ -16,8 +16,6 @@ import org.apache.http.util.EntityUtils;
 
 public class BookOrderThread implements Runnable {
 
-	private static int maxIdCount = 3;
-
 	private static String loginUrl = "http://59.108.39.19:81/api/wechatGh/login.do";
 
 	// "http://59.108.39.19:81/api/wechatGh/outDoctorList.do?noType=2&office_id=0000395&officeName=妇科门诊"
@@ -86,58 +84,56 @@ public class BookOrderThread implements Runnable {
 			response = null;
 		}
 
-		for (int i = 0; i < maxIdCount; i++) {
-			boolean toGh = true;
-			// 进入预约挂号页面
+		// 进入预约挂号页面
+		try {
+			HttpUriRequest page2 = RequestBuilder.get().setUri(new URI(ghPageUrl)).build();
+			response = httpclient.execute(page2);
+			// HttpEntity entity = response.getEntity();
+			// System.out.println(EntityUtils.toString(entity));
+			// System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面成功！");
+		} catch (Exception e) {
+			System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面失败！");
+			e.printStackTrace();
+		} finally {
 			try {
-				HttpUriRequest page2 = RequestBuilder.get().setUri(new URI(ghPageUrl.replace("#", String.valueOf(i))))
-						.build();
-				response = httpclient.execute(page2);
-				// HttpEntity entity = response.getEntity();
-				// System.out.println(EntityUtils.toString(entity));
-				// System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面成功！");
+				response.close();
 			} catch (Exception e) {
-				System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面失败！");
-				e.printStackTrace();
-				toGh = false;
-			} finally {
-				try {
-					response.close();
-				} catch (Exception e) {
-				}
-				response = null;
 			}
-			// 进行实际预约挂号
-			if (toGh) {
-				try {
-					HttpUriRequest page3 = RequestBuilder.get()
-							.setUri(new URI(confirmGhPage.replace("#", String.valueOf(i)))).build();
-					response = httpclient.execute(page3);
-					HttpEntity entity = response.getEntity();
-					String result = EntityUtils.toString(entity);
-					if (result.indexOf("预约成功") > -1) {
-						successFlag.set(true);
-						System.out.println(result);
-						System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号成功！");
-					} else {
-						// System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
-					}
-				} catch (Exception e) {
-					System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
-					e.printStackTrace();
-				} finally {
-					try {
-						response.close();
-					} catch (Exception e) {
-					}
-					response = null;
-				}
-			}
+			response = null;
 		}
+
+		// 进行实际预约挂号
+		try {
+			HttpUriRequest page3 = RequestBuilder.get().setUri(new URI(confirmGhPage)).build();
+			response = httpclient.execute(page3);
+			HttpEntity entity = response.getEntity();
+			String result = EntityUtils.toString(entity);
+			if (result.indexOf("预约成功") > -1) {
+				successFlag.set(true);
+				System.out.println(result);
+				System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号成功！");
+			} else {
+				// System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
+			}
+		} catch (Exception e) {
+			System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
+			e.printStackTrace();
+		} finally {
+			try {
+				response.close();
+			} catch (Exception e) {
+			}
+			response = null;
+		}
+
 		// 关闭httpclient
 		try {
 			httpclient.close();
-		} catch (Exception e) {
+		} catch (
+
+		Exception e)
+
+		{
 			e.printStackTrace();
 		}
 
