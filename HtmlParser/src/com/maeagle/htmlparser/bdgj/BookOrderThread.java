@@ -21,9 +21,11 @@ public class BookOrderThread implements Runnable {
 	// "http://59.108.39.19:81/api/wechatGh/outDoctorList.do?noType=2&office_id=0000395&officeName=妇科门诊"
 	private static String listDocUrl = "http://59.108.39.19:81/api/wechatGh/outDoctorList.do?noType=2&office_id=0000418&officeName=产科门诊";
 
-	private static String ghPageUrl = "http://59.108.39.19:81/api/wechatGh/actualGhPage.do?id=#";
+	private static String ghPageUrl = "http://59.108.39.19:81/api/wechatGh/actualGhPage.do?id=0";
 
-	private static String confirmGhPage = "http://59.108.39.19:81/api/wechatGh/actualGh.do?id=#";
+	private static String confirmGhPage = "http://59.108.39.19:81/api/wechatGh/actualGh.do?id=0";
+
+	private static String confirmGhPage_1 = "http://59.108.39.19:81/api/wechatGh/actualGh.do?id=1";
 
 	private BasicCookieStore cookieStore = new BasicCookieStore();
 
@@ -110,7 +112,31 @@ public class BookOrderThread implements Runnable {
 			String result = EntityUtils.toString(entity);
 			if (result.indexOf("预约成功") > -1) {
 				successFlag.set(true);
-				System.out.println(result);
+				System.out.println(confirmGhPage + " : \n" + result);
+				System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号成功！");
+			} else {
+				// System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
+			}
+		} catch (Exception e) {
+			System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
+			e.printStackTrace();
+		} finally {
+			try {
+				response.close();
+			} catch (Exception e) {
+			}
+			response = null;
+		}
+
+		// 进行实际预约挂号
+		try {
+			HttpUriRequest page3 = RequestBuilder.get().setUri(new URI(confirmGhPage_1)).build();
+			response = httpclient.execute(page3);
+			HttpEntity entity = response.getEntity();
+			String result = EntityUtils.toString(entity);
+			if (result.indexOf("预约成功") > -1) {
+				successFlag.set(true);
+				System.out.println(confirmGhPage_1 + " : \n" + result);
 				System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号成功！");
 			} else {
 				// System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
