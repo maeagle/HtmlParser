@@ -23,7 +23,7 @@ public class BookOrderThread implements Runnable {
 
 	private static String ghPageUrl = "http://59.108.39.19:81/api/wechatGh/actualGhPage.do?id=0";
 
-	private static String confirmGhPage = "http://59.108.39.19:81/api/wechatGh/actualGh.do?id=2";
+	private static String confirmGhPage = "http://59.108.39.19:81/api/wechatGh/actualGh.do?id=4";
 
 	private BasicCookieStore cookieStore = new BasicCookieStore();
 

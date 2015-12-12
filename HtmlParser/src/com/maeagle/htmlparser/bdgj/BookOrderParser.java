@@ -1,5 +1,7 @@
 package com.maeagle.htmlparser.bdgj;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -11,14 +13,14 @@ public class BookOrderParser {
 
 	private static int currentCount = 0;
 
-	private static final String start_date_time = "2015-10-18 23:59:59";
+	private static final String start_date_time = "2015-10-28 23:59:59";
 
 	public static void main(String[] args) throws Exception {
 
-		// DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		// Date startDate = df.parse(start_date_time);
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date startDate = df.parse(start_date_time);
 
-		Date startDate = new Date();
+//		Date startDate = new Date();
 
 		AtomicBoolean successFlag = new AtomicBoolean(false);
 		Timer timer = new Timer();
@@ -34,6 +36,7 @@ public class BookOrderParser {
 				} else {
 					System.out.println("已经挂完号了！");
 					timer.cancel();
+					System.exit(0);
 				}
 			}
 		}, startDate, 500);
