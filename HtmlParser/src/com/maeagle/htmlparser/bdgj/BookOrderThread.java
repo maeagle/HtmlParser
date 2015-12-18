@@ -36,6 +36,9 @@ public class BookOrderThread implements Runnable {
 	@Override
 	public void run() {
 
+		if (successFlag.get())
+			return;
+
 		CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
 		CloseableHttpResponse response = null;
 
