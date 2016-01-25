@@ -1,25 +1,20 @@
 package com.maeagle.parser.business;
 
-import com.maeagle.parser.BookOrderParser;
 import com.maeagle.utils.PropertiesUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,101 +23,40 @@ import java.util.regex.Pattern;
  *
  * @author maeagle
  */
-public class BookOrderThread implements Runnable {
+public class BookingThread implements Runnable {
 
+    private static Logger logger = LoggerFactory.getLogger(BookingThread.class);
 
     private Pattern pattern_GhPage = Pattern.compile(PropertiesUtils.getProperty("parser.bdgj.ghpage.pattern"));
 
     private Pattern pattern_ConfirmGhPage = Pattern.compile(PropertiesUtils.getProperty("parser.bdgj.ghconfirmpage.pattern"));
 
     /**
-     * The Cookie store.
-     */
-    private BasicCookieStore cookieStore = new BasicCookieStore();
-
-    /**
      * The Success flag.
      */
-    private AtomicInteger successCount;
+    private AtomicBoolean successFlag;
+
+
+    private CloseableHttpClient httpclient;
+
+    private String id;
 
     /**
      * Instantiates a new Book order thread.
      *
-     * @param successCount the success flag
+     * @param successFlag the success flag
      */
-    public BookOrderThread(AtomicInteger successCount) {
-        this.successCount = successCount;
+    public BookingThread(CloseableHttpClient httpclient, AtomicBoolean successFlag, String id) {
+        this.httpclient = httpclient;
+        this.successFlag = successFlag;
+        this.id = id;
     }
 
     @Override
     public void run() {
 
-        if (successCount.get() >= BookOrderParser.maxCount)
+        if (successFlag.get())
             return;
-
-        CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
-
-
-        boolean loginSuccess = login(httpclient);
-
-        if (loginSuccess) {
-            execute(httpclient);
-        }
-
-
-        // 关闭httpclient
-        try {
-            httpclient.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /**
-     * Login boolean.
-     *
-     * @param httpclient the httpclient
-     * @return the boolean
-     */
-    private boolean login(CloseableHttpClient httpclient) {
-
-        CloseableHttpResponse response = null;
-        try {
-            HttpUriRequest loginRequest = RequestBuilder.post().setUri(PropertiesUtils.getProperty("parser.bdgj.login.url"))
-                    .addParameter("mobile", PropertiesUtils.getProperty("parser.bdgj.login.username"))
-                    .addParameter("password", PropertiesUtils.getProperty("parser.bdgj.login.password")).build();
-            response = httpclient.execute(loginRequest);
-            HttpEntity entity = response.getEntity();
-            EntityUtils.consume(entity);
-            List<Cookie> cookies = cookieStore.getCookies();
-            if (cookies.isEmpty()) {
-                throw new NullPointerException();
-            } else {
-                // System.out.println("Login Cookies : ");
-                // for (int i = 0; i < cookies.size(); i++)
-                // System.out.println("- " + cookies.get(i).toString());
-                // System.out.println("＝＝＝＝＝＝＝＝＝登陆成功！");
-            }
-        } catch (Exception e) {
-            System.out.println("＝＝＝＝＝＝＝＝＝登陆失败！");
-            e.printStackTrace();
-            return false;
-        } finally {
-            try {
-                response.close();
-            } catch (Exception e) {
-            }
-        }
-        return true;
-    }
-
-    /**
-     * 主逻辑执行.
-     *
-     * @param httpclient the httpclient
-     */
-    private void execute(CloseableHttpClient httpclient) {
 
         CloseableHttpResponse response = null;
         Document doc = null;
@@ -135,12 +69,11 @@ public class BookOrderThread implements Runnable {
             doc.body().getElementsByTag("tbody").get(0).getElementsByTag("tr")
                     .stream().filter(trElement -> findDoctorElement(trElement))
                     .map(trElement -> findGhPage(trElement))
-                    .map(ghPage -> findGhConfirmPage(httpclient, ghPage))
-                    .forEach(ghConfrmPage -> executeGhAction(httpclient, ghConfrmPage));
+                    .map(ghPage -> findGhConfirmPage(ghPage))
+                    .forEach(ghConfrmPage -> executeGhAction(ghConfrmPage));
 
         } catch (Exception e) {
-            System.out.println("＝＝＝＝＝＝＝＝＝执行失败！");
-            e.printStackTrace();
+            logger.error("[" + id + "]: 执行失败！", e);
         } finally {
             try {
                 response.close();
@@ -187,11 +120,10 @@ public class BookOrderThread implements Runnable {
     /**
      * 找到挂号确认页面地址.
      *
-     * @param httpclient the httpclient
-     * @param ghPage     the gh page
+     * @param ghPage the gh page
      * @return the string
      */
-    private String findGhConfirmPage(CloseableHttpClient httpclient, String ghPage) {
+    private String findGhConfirmPage(String ghPage) {
         CloseableHttpResponse response = null;
         String ghPageStr = null;
         if (ghPage == null)
@@ -207,8 +139,7 @@ public class BookOrderThread implements Runnable {
             }
             return null;
         } catch (Exception e) {
-            System.out.println("＝＝＝＝＝＝＝＝＝进入挂号页面失败！");
-            e.printStackTrace();
+            logger.error("[" + id + "]: 进入挂号页面失败！", e);
             return null;
         } finally {
             try {
@@ -221,10 +152,9 @@ public class BookOrderThread implements Runnable {
     /**
      * 执行挂号逻辑
      *
-     * @param httpclient    the httpclient
      * @param ghConfirmPage the gh confirm page
      */
-    private void executeGhAction(CloseableHttpClient httpclient, String ghConfirmPage) {
+    private void executeGhAction(String ghConfirmPage) {
         CloseableHttpResponse response = null;
         // 进行实际预约挂号
         if (ghConfirmPage == null)
@@ -232,19 +162,19 @@ public class BookOrderThread implements Runnable {
 
         try {
             HttpUriRequest ghConfirmPageReq = RequestBuilder.get().setUri(new URI(PropertiesUtils.getProperty("parser.bdgj.root.url") + ghConfirmPage)).build();
-            response = httpclient.execute(ghConfirmPageReq);
-            HttpEntity entity = response.getEntity();
-            String result = EntityUtils.toString(entity);
-            System.out.println(result);
-            if (result.indexOf("预约成功") > -1) {
-                successCount.incrementAndGet();
-                System.out.println(ghConfirmPage + " : \n" + result);
-            } else {
-                //System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！\n"+result);
+
+            while (!successFlag.get()) {
+                response = httpclient.execute(ghConfirmPageReq);
+                HttpEntity entity = response.getEntity();
+                String result = EntityUtils.toString(entity);
+                if (result.indexOf("预约成功") > -1) {
+                    successFlag.set(true);
+                    logger.info("[" + id + "]: 预约成功！");
+                    break;
+                }
             }
         } catch (Exception e) {
-            System.out.println("＝＝＝＝＝＝＝＝＝实际预约挂号失败！");
-            e.printStackTrace();
+
         } finally {
             try {
                 response.close();

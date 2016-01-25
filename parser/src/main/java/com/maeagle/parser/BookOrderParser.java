@@ -1,61 +1,56 @@
 package com.maeagle.parser;
 
-import com.maeagle.parser.business.BookOrderThread;
+import com.maeagle.parser.business.BookOrderExecutor;
+import com.maeagle.utils.PropertiesUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 public class BookOrderParser {
 
-    private static int thread_to_run = 1;
-
-    private static int currentCount = 0;
-
-    private static int interval = 500;
+    private static Logger logger = LoggerFactory.getLogger(BookOrderParser.class);
 
     private static Date startDate = new Date();
 
-    public static int maxCount = 1;
+    private static List<String[]> accountList = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
 
-        if (args != null && args.length != 0) {
-            if (!"now".equals(args[0])) {
-                startDate = new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse(args[0]);
+        if (!"now".equals(args[0])) {
+            startDate = new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").parse(args[0]);
+        }
+        String[] accounts = StringUtils.defaultString(args[1], "").split(";");
+        if (accounts.length != 0) {
+            for (String account : accounts) {
+                String[] res = StringUtils.defaultString(account, ",").split(",");
+                if (res.length != 2) {
+                    logger.error("存在不符合要求的账号! 已经跳过...");
+                    continue;
+                }
+                accountList.add(res);
             }
-            thread_to_run = Integer.parseInt(args[1]);
-            interval = Integer.parseInt(args[2]);
-            maxCount = Integer.parseInt(args[3]);
+        } else {
+            throw new Exception("请设置账号! 格式如下: 用户名1,密码1;用户名2,密码2...");
         }
         System.out.println("启动时间：" + new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").format(startDate));
-        System.out.println("并发数：" + thread_to_run);
-        System.out.println("执行间隔：" + interval + " ms");
-        System.out.println("最大数量：" + maxCount + " ms");
+        System.out.println("用户数量：" + accountList.size());
+        System.out.println("单用户线程数：" + PropertiesUtils.getProperty("parser.bdgj.pre_account.thread.count"));
 
-        AtomicInteger successCount = new AtomicInteger(0);
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (successCount.get() < maxCount) {
-                    System.out.println("==================第" + (++currentCount) + "次执行定时器！");
-                    for (int i = 0; i < thread_to_run; i++) {
-                        Thread thread = new Thread(new BookOrderThread(successCount));
-                        thread.start();
-                    }
-                } else {
-                    System.out.println("已经挂完号了！");
-                    timer.cancel();
-                    System.exit(0);
-                }
+                accountList.stream().forEach(account -> {
+                    Thread thread = new Thread(new BookOrderExecutor(account[0], account[1]));
+                    thread.start();
+                });
             }
-        }, startDate, interval);
+        }, startDate);
         System.in.read();
-        timer.cancel();
+        System.exit(0);
     }
 
 }

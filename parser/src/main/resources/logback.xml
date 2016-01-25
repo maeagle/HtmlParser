@@ -4,7 +4,7 @@
 
     <property name="LOG_HOME" value="/Users/maeagle/parser/logs"/>
     <property name="maxFileSize" value="100MB"/>
-    <property name="contentPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%class:%line] - %m%n"/>
+    <property name="contentPattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} [%file:%line] - %msg%n"/>
 
     <property name="commonFileNamePattern" value="common-%d{yyyy-MM-dd}.%i.log"/>
 
@@ -26,13 +26,13 @@
     <!-- 控制台日志输出 -->
     <appender name="STD_OUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+            <pattern>${contentPattern}</pattern>
         </encoder>
     </appender>
 
     <root level="INFO">
         <appender-ref ref="STD_OUT"/>
-        <!--<appender-ref ref="COMMON_FILE_OUT"/>-->
+        <appender-ref ref="COMMON_FILE_OUT"/>
     </root>
 
 </configuration>
