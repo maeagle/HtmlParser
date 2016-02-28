@@ -7,7 +7,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +49,7 @@ public class MonitorThread implements Runnable {
 
     @Override
     public void run() {
+        logger.info("[{}]:启动个人帐户监控线程...", id);
         while (!successFlag.get()) {
             String returnStr = processBookListPage();
             Matcher matcher = pattern_cancelYuyue.matcher(returnStr);
@@ -57,7 +57,7 @@ public class MonitorThread implements Runnable {
                 String str = matcher.group();
                 if (!snapshots.contains(str)) {
                     successFlag.set(true);
-                    logger.info("[" + id + "]: 预约成功！");
+                    logger.info("[{}]: 通过个人帐户查询到预约成功！", id);
                     return;
                 }
             }

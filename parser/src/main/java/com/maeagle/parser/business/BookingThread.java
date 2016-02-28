@@ -10,6 +10,7 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,7 @@ import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * The type Book order thread.
@@ -61,16 +63,23 @@ public class BookingThread implements Runnable {
         CloseableHttpResponse response = null;
         Document doc = null;
         try {
-            HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.booklist.url")).build();
-            response = httpclient.execute(listPage);
-            HttpEntity entity = response.getEntity();
-            String bookList = EntityUtils.toString(entity);
-            doc = Jsoup.parse(bookList);
-            doc.body().getElementsByTag("tbody").get(0).getElementsByTag("tr")
-                    .stream().filter(trElement -> findDoctorElement(trElement))
-                    .map(trElement -> findGhPage(trElement))
-                    .map(ghPage -> findGhConfirmPage(ghPage))
-                    .forEach(ghConfrmPage -> executeGhAction(ghConfrmPage));
+            boolean findDoctorFlag = false;
+            Stream<Element> bizStream = null;
+            Elements bizData = null;
+            logger.info("[{}]:开始寻找医生[{}]的预约号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
+            while (!findDoctorFlag) {
+                HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.booklist.url")).build();
+                response = httpclient.execute(listPage);
+                HttpEntity entity = response.getEntity();
+                String bookList = EntityUtils.toString(entity);
+                bizData = Jsoup.parse(bookList).body().getElementsByTag("tbody").get(0).getElementsByTag("tr");
+                findDoctorFlag = bizData.stream().anyMatch(this::findDoctorElement);
+            }
+            logger.info("[{}]:找到医生[{}]的预约号!开始挂号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
+            bizData.stream().filter(this::findDoctorElement)
+                    .map(this::findGhPage)
+                    .map(this::findGhConfirmPage)
+                    .forEach(this::executeGhAction);
 
         } catch (Exception e) {
             logger.error("[" + id + "]: 执行失败！", e);
@@ -96,8 +105,9 @@ public class BookingThread implements Runnable {
             return false;
         }
         // 存在这个医生, 但是不能点击
-        if (!html.contains("onclick"))
+        if (!html.contains("onclick")) {
             return false;
+        }
 
         return true;
     }
@@ -163,23 +173,22 @@ public class BookingThread implements Runnable {
         try {
             HttpUriRequest ghConfirmPageReq = RequestBuilder.get().setUri(new URI(PropertiesUtils.getProperty("parser.bdgj.root.url") + ghConfirmPage)).build();
 
+            int count = 1;
             while (!successFlag.get()) {
+                logger.info("[{}]:尝试第{}次...", id, count++);
                 response = httpclient.execute(ghConfirmPageReq);
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
+                try {
+                    response.close();
+                } catch (Exception e) {
+                }
                 if (result.indexOf("预约成功") > -1) {
                     successFlag.set(true);
-                    logger.info("[" + id + "]: 预约成功！");
                     break;
                 }
             }
         } catch (Exception e) {
-
-        } finally {
-            try {
-                response.close();
-            } catch (Exception e) {
-            }
         }
     }
 

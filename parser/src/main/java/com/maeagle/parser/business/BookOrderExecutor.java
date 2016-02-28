@@ -63,7 +63,7 @@ public class BookOrderExecutor implements Runnable {
                     Thread subThread = new Thread(new BookingThread(httpclient, successFlag, id));
                     subThread.start();
                 }
-                while (!successFlag.get()) ;
+                while(true);
             } else {
                 logger.error("登陆失败!");
             }
