@@ -6,11 +6,7 @@ public class BookOrderParserTest {
 
     @Test
     public void testMain() {
-        try {
-            BookOrderParser.main(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
 }

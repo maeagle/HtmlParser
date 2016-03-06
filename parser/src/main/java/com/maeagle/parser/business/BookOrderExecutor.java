@@ -1,6 +1,6 @@
 package com.maeagle.parser.business;
 
-import com.maeagle.utils.PropertiesUtils;
+import com.halo.core.common.PropertiesUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;

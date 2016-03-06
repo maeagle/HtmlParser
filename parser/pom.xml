@@ -7,12 +7,59 @@
     <groupId>com.maeagle.parser</groupId>
     <artifactId>parser</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>${project.artifactId}</name>
     <description>解析器</description>
 
     <dependencies>
 
+        <!--与Web交互相关的依赖 -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet_version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring_version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--对halo的依赖 -->
+        <dependency>
+            <groupId>com.halo</groupId>
+            <artifactId>halo-core</artifactId>
+            <version>${halo_core_version}</version>
+        </dependency>
+        <!--Quartz客户端依赖 -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${quartz_version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>c3p0</groupId>
+                    <artifactId>c3p0</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--实现DAO时,相关的依赖 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql_driver_version}</version>
+        </dependency>
+        <!--httpclient依赖 -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -23,7 +70,6 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup_version}</version>
         </dependency>
-
         <!--各类工具的依赖 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -41,7 +87,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!--日志依赖 -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -58,7 +103,6 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback_version}</version>
         </dependency>
-
         <!--测试依赖 -->
         <dependency>
             <groupId>junit</groupId>
@@ -68,13 +112,17 @@
         </dependency>
     </dependencies>
 
-
     <properties>
         <!-- 统一字符集 -->
         <encoding_type>UTF-8</encoding_type>
-        <!-- 对依赖的根组件(root jar)的版本维护 -->
 
+        <!-- 对依赖的根组件(root jar)的版本维护 -->
         <java_version>1.8</java_version>
+        <halo_core_version>1.0-SNAPSHOT</halo_core_version>
+        <servlet_version>3.1.0</servlet_version>
+        <spring_version>4.2.4.RELEASE</spring_version>
+        <quartz_version>2.2.2</quartz_version>
+        <mysql_driver_version>5.1.38</mysql_driver_version>
         <http_client_version>4.5.1</http_client_version>
         <jsoup_version>1.8.3</jsoup_version>
         <commons_lang3_version>3.4</commons_lang3_version>
@@ -88,12 +136,46 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <encoding>${encoding_type}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
                     <source>${java_version}</source>
                     <target>${java_version}</target>
                     <encoding>${encoding_type}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.3.0.v20150612</version>
+                <configuration>
+                    <scanIntervalSeconds>0</scanIntervalSeconds>
+                    <jettyXml>jetty.xml</jettyXml>
+                    <webApp>
+                        <contextPath>/parser</contextPath>
+                    </webApp>
                 </configuration>
             </plugin>
         </plugins>
