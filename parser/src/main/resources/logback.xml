@@ -5,10 +5,8 @@
     <!--////////////////////////Property部分////////////////////////-->
 
     <!--日志文件存储的文件夹根路径-->
-    <!--<property name="LOG_HOME" value="/alidata/log/parser"/>-->
-    <property name="LOG_HOME" value="/Users/maeagle/Git_repository/logs/parser"/>
-    <!--日志文件存储上限-->
-    <property name="maxFileSize" value="100MB"/>
+    <property name="LOG_HOME" value="/alidata/log/parser"/>
+    <!--<property name="LOG_HOME" value="/Users/maeagle/Git_repository/logs/parser"/>-->
     <!--当使用异步日志时，日志队列中存储的最大日志对象个数-->
     <property name="maxQueueSize" value="512"/>
     <!--当使用异步日志时，日志队列到达20%容量时，是否要丢弃TRACE、DEBUG和INFO级别的event。0为不丢弃-->
@@ -21,17 +19,17 @@
               value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{100} - %msg%n"/>
 
     <!--全量日志文件的时间滚动生成策略-->
-    <property name="fullFileNamePattern" value="full-%d{yyyy-MM-dd}.%i.log"/>
+    <property name="fullFileNamePattern" value="full-%d{yyyy-MM-dd}.log"/>
     <!--核心组件core日志文件的时间滚动生成策略-->
-    <property name="coreFileNamePattern" value="core-%d{yyyy-MM-dd}.%i.log"/>
+    <property name="coreFileNamePattern" value="core-%d{yyyy-MM-dd}.log"/>
     <!--接口日志文件的时间滚动生成策略-->
-    <property name="interfaceFileNamePattern" value="interface-%d{yyyy-MM-dd}.%i.log"/>
+    <property name="interfaceFileNamePattern" value="interface-%d{yyyy-MM-dd}.log"/>
     <!--web日志文件的时间滚动生成策略-->
-    <property name="webFileNamePattern" value="web-%d{yyyy-MM-dd}.%i.log"/>
+    <property name="webFileNamePattern" value="web-%d{yyyy-MM-dd}.log"/>
     <!--dao日志文件的时间滚动生成策略-->
-    <property name="daoFileNamePattern" value="dao-%d{yyyy-MM-dd}.%i.log"/>
+    <property name="daoFileNamePattern" value="dao-%d{yyyy-MM-dd}.log"/>
     <!--service日志文件的时间滚动生成策略-->
-    <property name="serviceFileNamePattern" value="service-%d{yyyy-MM-dd}.%i.log"/>
+    <property name="serviceFileNamePattern" value="service-%d{yyyy-MM-dd}.log"/>
 
     <!--////////////////////////Appender部分////////////////////////-->
 
@@ -39,14 +37,10 @@
     <appender name="INTERFACE_FILE_OUT_SYNC" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/interface/interface.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${interfaceFileNamePattern}</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/interface/${interfaceFileNamePattern}</fileNamePattern>
         </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>${maxFileSize}</maxFileSize>
-        </triggeringPolicy>
         <encoder class="com.halo.core.log.CustomPatternLayoutEncoder">
             <pattern>${asyncContentPattern}</pattern>
-            <!--<pattern>${syncContentPattern}</pattern>-->
         </encoder>
     </appender>
     <!-- 记录接口日志异步策略的Appender -->
@@ -60,14 +54,10 @@
     <appender name="FULL_FILE_OUT_SYNC" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/full/full.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${fullFileNamePattern}</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/full/${fullFileNamePattern}</fileNamePattern>
         </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>${maxFileSize}</maxFileSize>
-        </triggeringPolicy>
         <encoder class="com.halo.core.log.CustomPatternLayoutEncoder">
-            <pattern>${syncContentPattern}</pattern>
-            <!--<pattern>${asyncContentPattern}</pattern>-->
+            <pattern>${asyncContentPattern}</pattern>
         </encoder>
     </appender>
     <!-- 记录全量日志异步策略的Appender -->
@@ -81,14 +71,10 @@
     <appender name="CORE_FILE_OUT_SYNC" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/core/core.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${coreFileNamePattern}</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/core/${coreFileNamePattern}</fileNamePattern>
         </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>${maxFileSize}</maxFileSize>
-        </triggeringPolicy>
         <encoder class="com.halo.core.log.CustomPatternLayoutEncoder">
-            <pattern>${syncContentPattern}</pattern>
-            <!--<pattern>${asyncContentPattern}</pattern>-->
+            <pattern>${asyncContentPattern}</pattern>
         </encoder>
     </appender>
     <!-- 记录核心组件日志异步策略的Appender -->
@@ -110,14 +96,10 @@
     <appender name="WEB_FILE_OUT_SYNC" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/web/web.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${webFileNamePattern}</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/web/${webFileNamePattern}</fileNamePattern>
         </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>${maxFileSize}</maxFileSize>
-        </triggeringPolicy>
         <encoder class="com.halo.core.log.CustomPatternLayoutEncoder">
             <pattern>${asyncContentPattern}</pattern>
-            <!--<pattern>${syncContentPattern}</pattern>-->
         </encoder>
     </appender>
     <!-- 记录Web层日志异步策略的Appender -->
@@ -131,14 +113,10 @@
     <appender name="DAO_FILE_OUT_SYNC" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/dao/dao.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${daoFileNamePattern}</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/dao/${daoFileNamePattern}</fileNamePattern>
         </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>${maxFileSize}</maxFileSize>
-        </triggeringPolicy>
         <encoder class="com.halo.core.log.CustomPatternLayoutEncoder">
             <pattern>${asyncContentPattern}</pattern>
-            <!--<pattern>${syncContentPattern}</pattern>-->
         </encoder>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>DEBUG</level>
@@ -157,14 +135,10 @@
     <appender name="SERVICE_FILE_OUT_SYNC" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/service/service.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${serviceFileNamePattern}</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/service/${serviceFileNamePattern}</fileNamePattern>
         </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>${maxFileSize}</maxFileSize>
-        </triggeringPolicy>
         <encoder class="com.halo.core.log.CustomPatternLayoutEncoder">
-            <pattern>${syncContentPattern}</pattern>
-            <!--<pattern>${asyncContentPattern}</pattern>-->
+            <pattern>${asyncContentPattern}</pattern>
         </encoder>
     </appender>
     <!-- 记录service层日志异步策略的Appender -->
@@ -183,7 +157,7 @@
         <appender-ref ref="DAO_FILE_OUT_ASYNC"/>
     </logger>
     <logger name="com.maeagle.parser.service" level="INFO">
-        <appender-ref ref="SERVICE_FILE_OUT_SYNC"/>
+        <appender-ref ref="SERVICE_FILE_OUT_ASYNC"/>
     </logger>
     <logger name="org.apache.cxf.services.SoapServiceService.SoapServicePort.SoapService" level="INFO">
         <appender-ref ref="INTERFACE_FILE_OUT_ASYNC"/>
@@ -198,13 +172,13 @@
         <appender-ref ref="INTERFACE_FILE_OUT_ASYNC"/>
     </logger>
     <logger name="com.halo.core" level="INFO">
-        <appender-ref ref="CORE_FILE_OUT_SYNC"/>
+        <appender-ref ref="CORE_FILE_OUT_ASYNC"/>
     </logger>
     <logger name="com.maeagle.parser.web" level="INFO">
         <appender-ref ref="WEB_FILE_OUT_ASYNC"/>
     </logger>
     <root level="INFO">
-        <appender-ref ref="STD_OUT"/>
+        <!--<appender-ref ref="STD_OUT"/>-->
         <appender-ref ref="FULL_FILE_OUT_ASYNC"/>
     </root>
 </configuration>

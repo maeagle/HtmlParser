@@ -24,6 +24,10 @@ public class BookingTask extends InitializingTask {
 
         logger.info("启动北大国际挂号服务...");
 
+        if (StringUtils.isEmpty(PropertiesUtils.getProperty("parser.bdgj.accounts"))) {
+            logger.info("账号信息为空. 请设置[parser.bdgj.accounts]");
+            return;
+        }
         String[] accounts = PropertiesUtils.getProperty("parser.bdgj.accounts").split(";");
         if (accounts.length != 0) {
             Arrays.stream(accounts).map(account -> StringUtils.defaultString(account, ",").split(",")).forEach(account -> {
