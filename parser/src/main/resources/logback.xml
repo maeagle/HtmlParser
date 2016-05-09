@@ -5,7 +5,7 @@
     <!--////////////////////////Property部分////////////////////////-->
 
     <!--日志文件存储的文件夹根路径-->
-    <property name="LOG_HOME" value="/alidata/log/parser"/>
+    <property name="LOG_HOME" value="log/parser"/>
     <!--<property name="LOG_HOME" value="/Users/maeagle/Git_repository/logs/parser"/>-->
     <!--当使用异步日志时，日志队列中存储的最大日志对象个数-->
     <property name="maxQueueSize" value="512"/>
@@ -178,7 +178,7 @@
         <appender-ref ref="WEB_FILE_OUT_ASYNC"/>
     </logger>
     <root level="INFO">
-        <!--<appender-ref ref="STD_OUT"/>-->
+        <appender-ref ref="STD_OUT"/>
         <appender-ref ref="FULL_FILE_OUT_ASYNC"/>
     </root>
 </configuration>

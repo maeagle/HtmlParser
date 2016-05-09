@@ -118,7 +118,7 @@
 
         <!-- 对依赖的根组件(root jar)的版本维护 -->
         <java_version>1.8</java_version>
-        <halo_core_version>1.0-SNAPSHOT</halo_core_version>
+        <halo_core_version>1.0.4-SNAPSHOT</halo_core_version>
         <servlet_version>3.1.0</servlet_version>
         <spring_version>4.2.4.RELEASE</spring_version>
         <quartz_version>2.2.2</quartz_version>

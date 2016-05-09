@@ -1,5 +1,8 @@
 package com.maeagle.parser.business;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.halo.core.common.PropertiesUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,8 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by maeagle on 16/1/25.
@@ -34,16 +36,14 @@ public class MonitorThread implements Runnable {
 
     private String id;
 
-    private Pattern pattern_cancelYuyue = Pattern.compile(PropertiesUtils.getProperty("parser.bdgj.cancelgh.pattern"));
-
-    private List<String> snapshots = new ArrayList<>();
+    private List<String> snapshot = new ArrayList<>();
 
     public MonitorThread(CloseableHttpClient httpclient, AtomicBoolean successFlag, String id) {
         this.httpclient = httpclient;
         this.successFlag = successFlag;
         this.id = id;
 
-        initSnapshots();
+        initSnapshot();
     }
 
 
@@ -51,38 +51,29 @@ public class MonitorThread implements Runnable {
     public void run() {
         logger.info("[{}]:启动个人帐户监控线程...", id);
         while (!successFlag.get()) {
-            String returnStr = processBookListPage();
-            Matcher matcher = pattern_cancelYuyue.matcher(returnStr);
-            while (matcher.find()) {
-                String str = matcher.group();
-                if (!snapshots.contains(str)) {
-                    successFlag.set(true);
-                    logger.info("[{}]: 通过个人帐户查询到预约成功！", id);
-                    return;
-                }
+            if (queryBookedList().stream().map(obj -> (JSONObject) obj).filter(jsonObject -> !snapshot.contains(jsonObject.getString("ReservationCode"))).count() > 0) {
+                successFlag.set(true);
+                logger.info("[{}]:成功预约医生[{}]的号!", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
             }
         }
     }
 
-    private void initSnapshots() {
-        String returnStr = processBookListPage();
-        Matcher matcher = pattern_cancelYuyue.matcher(returnStr);
-        while (matcher.find()) {
-            snapshots.add(matcher.group());
-        }
+    private void initSnapshot() {
+        snapshot = queryBookedList().stream().map(obj -> (JSONObject) obj).map(jsonObject -> jsonObject.getString("ReservationCode")).collect(Collectors.toList());
+
     }
 
-    private String processBookListPage() {
+    private JSONArray queryBookedList() {
         CloseableHttpResponse response = null;
         Document doc = null;
         try {
-            HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.mybooklist.url")).build();
+            HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.booked.url")).build();
             response = httpclient.execute(listPage);
             HttpEntity entity = response.getEntity();
-            return EntityUtils.toString(entity);
+            return JSON.parseArray(EntityUtils.toString(entity));
         } catch (Exception e) {
             logger.error("[" + id + "]: 无法访问已预约页面！", e);
-            return "";
+            return JSON.parseArray("[]");
         } finally {
             try {
                 response.close();

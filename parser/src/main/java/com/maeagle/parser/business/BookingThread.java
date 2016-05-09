@@ -1,23 +1,25 @@
 package com.maeagle.parser.business;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.halo.core.common.PropertiesUtils;
+import com.maeagle.parser.utils.EncodingUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -29,15 +31,10 @@ public class BookingThread implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(BookingThread.class);
 
-    private Pattern pattern_GhPage = Pattern.compile(PropertiesUtils.getProperty("parser.bdgj.ghpage.pattern"));
-
-    private Pattern pattern_ConfirmGhPage = Pattern.compile(PropertiesUtils.getProperty("parser.bdgj.ghconfirmpage.pattern"));
-
     /**
      * The Success flag.
      */
     private AtomicBoolean successFlag;
-
 
     private CloseableHttpClient httpclient;
 
@@ -63,24 +60,22 @@ public class BookingThread implements Runnable {
         CloseableHttpResponse response = null;
         Document doc = null;
         try {
-            boolean findDoctorFlag = false;
             Stream<Element> bizStream = null;
             Elements bizData = null;
             logger.info("[{}]:开始寻找医生[{}]的预约号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
-            while (!findDoctorFlag) {
-                HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.booklist.url")).build();
+            while (!successFlag.get()) {
+                HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.availd-book.url")).build();
                 response = httpclient.execute(listPage);
                 HttpEntity entity = response.getEntity();
-                String bookList = EntityUtils.toString(entity);
-                bizData = Jsoup.parse(bookList).body().getElementsByTag("tbody").get(0).getElementsByTag("tr");
-                findDoctorFlag = bizData.stream().anyMatch(this::findDoctorElement);
+                JSONArray jsonArray = JSON.parseArray(EntityUtils.toString(entity));
+                jsonArray.stream().map(obj -> (JSONObject) obj).filter(jsonObject ->
+                        PropertiesUtils.getProperty("parser.bdgj.doctor.code").equals(jsonObject.get("DoctorCode"))
+                                && Integer.parseInt(ObjectUtils.defaultIfNull(jsonObject.get("AvailableNumber"), "0").toString()) > 0)
+                        .forEach(jsonObject -> {
+                            logger.info("[{}]:找到医生[{}]的预约号!开始挂号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
+                            bookingAction(jsonObject);
+                        });
             }
-            logger.info("[{}]:找到医生[{}]的预约号!开始挂号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
-            bizData.stream().filter(this::findDoctorElement)
-                    .map(this::findGhPage)
-                    .map(this::findGhConfirmPage)
-                    .forEach(this::executeGhAction);
-
         } catch (Exception e) {
             logger.error("[" + id + "]: 执行失败！", e);
         } finally {
@@ -92,103 +87,45 @@ public class BookingThread implements Runnable {
     }
 
     /**
-     * 找到医生信息节点.
-     *
-     * @param trElement the tr element
-     * @return the boolean
-     */
-    private boolean findDoctorElement(Element trElement) {
-
-        String html = trElement.html();
-        // 不存在这个医生
-        if (!html.contains(PropertiesUtils.getProperty("parser.bdgj.doctor.name"))) {
-            return false;
-        }
-        // 存在这个医生, 但是不能点击
-        if (!html.contains("onclick")) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * 找到挂号页面地址.
-     *
-     * @param trElement the tr element
-     * @return the string
-     */
-    private String findGhPage(Element trElement) {
-        Matcher matcher = pattern_GhPage.matcher(trElement.html());
-
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-
-    /**
-     * 找到挂号确认页面地址.
-     *
-     * @param ghPage the gh page
-     * @return the string
-     */
-    private String findGhConfirmPage(String ghPage) {
-        CloseableHttpResponse response = null;
-        String ghPageStr = null;
-        if (ghPage == null)
-            return null;
-        try {
-            HttpUriRequest ghPageReq = RequestBuilder.get().setUri(new URI(PropertiesUtils.getProperty("parser.bdgj.root.url") + ghPage)).build();
-            response = httpclient.execute(ghPageReq);
-            HttpEntity entity = response.getEntity();
-            ghPageStr = EntityUtils.toString(entity);
-            Matcher matcherCon = pattern_ConfirmGhPage.matcher(ghPageStr);
-            if (matcherCon.find()) {
-                return matcherCon.group(1);
-            }
-            return null;
-        } catch (Exception e) {
-            logger.error("[" + id + "]: 进入挂号页面失败！", e);
-            return null;
-        } finally {
-            try {
-                response.close();
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    /**
      * 执行挂号逻辑
      *
-     * @param ghConfirmPage the gh confirm page
+     * @param jsonObject the gh confirm page
      */
-    private void executeGhAction(String ghConfirmPage) {
+    private void bookingAction(JSONObject jsonObject) {
         CloseableHttpResponse response = null;
+
         // 进行实际预约挂号
-        if (ghConfirmPage == null)
+        if (jsonObject == null)
             return;
-
+        JSONObject requestJson = (JSONObject) jsonObject.clone();
+        requestJson.put("arrivedPay", "true");
+        requestJson.put("selectedUser", "self");
         try {
-            HttpUriRequest ghConfirmPageReq = RequestBuilder.get().setUri(new URI(PropertiesUtils.getProperty("parser.bdgj.root.url") + ghConfirmPage)).build();
-
+            StringEntity stringEntity = new StringEntity(EncodingUtils.native2Ascii(requestJson.toJSONString()));
+            stringEntity.setContentEncoding("UTF-8");
+            stringEntity.setContentType("application/json");
+            HttpUriRequest request = RequestBuilder.post().setUri(PropertiesUtils.getProperty("parser.bdgj.booking.url")).setEntity(stringEntity).build();
+            int avaliableNum = Integer.parseInt(ObjectUtils.defaultIfNull(jsonObject.get("AvailableNumber"), "0").toString());
             int count = 1;
-            while (!successFlag.get()) {
+            while (!successFlag.get() && count <= avaliableNum) {
                 logger.info("[{}]:尝试第{}次...", id, count++);
-                response = httpclient.execute(ghConfirmPageReq);
+                response = httpclient.execute(request);
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
                 try {
                     response.close();
                 } catch (Exception e) {
                 }
-                if (result.indexOf("预约成功") > -1) {
+                if (result.indexOf("orderId") > -1) {
                     successFlag.set(true);
+                    logger.info("[{}]:成功预约医生[{}]的号!", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
                     break;
+                } else {
+                    logger.info("[{}]:失败报文 : {}", id, result);
                 }
             }
         } catch (Exception e) {
+            logger.error(e.getMessage(), e);
         }
     }
 

@@ -1,11 +1,13 @@
 package com.maeagle.parser.business;
 
+import com.alibaba.fastjson.JSON;
 import com.halo.core.common.PropertiesUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -13,7 +15,9 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -63,7 +67,7 @@ public class BookOrderExecutor implements Runnable {
                     Thread subThread = new Thread(new BookingThread(httpclient, successFlag, id));
                     subThread.start();
                 }
-                while(true);
+                while (true) ;
             } else {
                 logger.error("登陆失败!");
             }
@@ -78,18 +82,24 @@ public class BookOrderExecutor implements Runnable {
     }
 
     /**
-     * Login boolean.
+     * 登录请求.
      *
      * @param httpclient the httpclient
      * @return the boolean
      */
     private boolean login(CloseableHttpClient httpclient) {
 
+        Map<String, String> accountInfo = new HashMap<>();
+        accountInfo.put("account", userName);
+        accountInfo.put("password", password);
+        String accountStr = JSON.toJSONString(accountInfo);
         CloseableHttpResponse response = null;
         try {
+            StringEntity stringEntity = new StringEntity(accountStr);
+            stringEntity.setContentEncoding("UTF-8");
+            stringEntity.setContentType("application/json");
             HttpUriRequest loginRequest = RequestBuilder.post().setUri(PropertiesUtils.getProperty("parser.bdgj.login.url"))
-                    .addParameter("mobile", userName)
-                    .addParameter("password", password).build();
+                    .setEntity(stringEntity).build();
             response = httpclient.execute(loginRequest);
             HttpEntity entity = response.getEntity();
             EntityUtils.consume(entity);
@@ -97,10 +107,10 @@ public class BookOrderExecutor implements Runnable {
             if (cookies.isEmpty()) {
                 throw new NullPointerException();
             } else {
-                // System.out.println("Login Cookies : ");
-                // for (int i = 0; i < cookies.size(); i++)
-                // System.out.println("- " + cookies.get(i).toString());
-                // System.out.println("＝＝＝＝＝＝＝＝＝登陆成功！");
+                System.out.println("Login Cookies : ");
+                for (int i = 0; i < cookies.size(); i++)
+                    System.out.println("- " + cookies.get(i).toString());
+                System.out.println("＝＝＝＝＝＝＝＝＝登陆成功！");
             }
         } catch (Exception e) {
             System.out.println("＝＝＝＝＝＝＝＝＝登陆失败！");
