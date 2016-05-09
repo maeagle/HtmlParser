@@ -10,7 +10,6 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>
             classpath*:applicationContext-core.xml
-            classpath*:applicationContext*.xml
         </param-value>
     </context-param>
     <!-- 解决中文乱码问题 -->

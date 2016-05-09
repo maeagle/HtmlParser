@@ -107,14 +107,10 @@ public class BookOrderExecutor implements Runnable {
             if (cookies.isEmpty()) {
                 throw new NullPointerException();
             } else {
-                System.out.println("Login Cookies : ");
-                for (int i = 0; i < cookies.size(); i++)
-                    System.out.println("- " + cookies.get(i).toString());
-                System.out.println("＝＝＝＝＝＝＝＝＝登陆成功！");
+                logger.info("＝＝＝＝＝＝＝＝＝登陆成功！");
             }
         } catch (Exception e) {
-            System.out.println("＝＝＝＝＝＝＝＝＝登陆失败！");
-            e.printStackTrace();
+            logger.error("＝＝＝＝＝＝＝＝＝登陆失败！",e);
             return false;
         } finally {
             try {

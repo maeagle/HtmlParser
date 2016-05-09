@@ -10,7 +10,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +64,6 @@ public class MonitorThread implements Runnable {
 
     private JSONArray queryBookedList() {
         CloseableHttpResponse response = null;
-        Document doc = null;
         try {
             HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.booked.url")).build();
             response = httpclient.execute(listPage);

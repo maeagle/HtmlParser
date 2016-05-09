@@ -177,8 +177,11 @@
     <logger name="com.maeagle.parser.web" level="INFO">
         <appender-ref ref="WEB_FILE_OUT_ASYNC"/>
     </logger>
+    <logger name="org.apache.http.client" level="ERROR">
+        <appender-ref ref="FULL_FILE_OUT_ASYNC"/>
+    </logger>
     <root level="INFO">
-        <appender-ref ref="STD_OUT"/>
+        <!--<appender-ref ref="STD_OUT"/>-->
         <appender-ref ref="FULL_FILE_OUT_ASYNC"/>
     </root>
 </configuration>

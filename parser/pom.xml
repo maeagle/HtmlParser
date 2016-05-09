@@ -36,20 +36,10 @@
             <groupId>com.halo</groupId>
             <artifactId>halo-core</artifactId>
             <version>${halo_core_version}</version>
-        </dependency>
-        <!--Quartz客户端依赖 -->
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>${quartz_version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>c3p0</groupId>
-                    <artifactId>c3p0</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>dubbo</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -64,11 +54,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${http_client_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup_version}</version>
         </dependency>
         <!--各类工具的依赖 -->
         <dependency>

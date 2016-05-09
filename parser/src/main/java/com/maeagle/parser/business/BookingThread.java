@@ -13,14 +13,10 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 /**
  * The type Book order thread.
@@ -58,10 +54,7 @@ public class BookingThread implements Runnable {
             return;
 
         CloseableHttpResponse response = null;
-        Document doc = null;
         try {
-            Stream<Element> bizStream = null;
-            Elements bizData = null;
             logger.info("[{}]:开始寻找医生[{}]的预约号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
             while (!successFlag.get()) {
                 HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.availd-book.url")).build();
