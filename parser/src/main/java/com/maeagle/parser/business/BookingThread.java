@@ -1,7 +1,6 @@
 package com.maeagle.parser.business;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.halo.core.common.PropertiesUtils;
 import com.maeagle.parser.utils.EncodingUtils;
@@ -60,14 +59,18 @@ public class BookingThread implements Runnable {
                 HttpUriRequest listPage = RequestBuilder.get().setUri(PropertiesUtils.getProperty("parser.bdgj.availd-book.url")).build();
                 response = httpclient.execute(listPage);
                 HttpEntity entity = response.getEntity();
-                JSONArray jsonArray = JSON.parseArray(EntityUtils.toString(entity));
-                jsonArray.stream().map(obj -> (JSONObject) obj).filter(jsonObject ->
-                        PropertiesUtils.getProperty("parser.bdgj.doctor.code").equals(jsonObject.get("DoctorCode"))
-                                && Integer.parseInt(ObjectUtils.defaultIfNull(jsonObject.get("AvailableNumber"), "0").toString()) > 0)
-                        .forEach(jsonObject -> {
-                            logger.info("[{}]:找到医生[{}]的预约号!开始挂号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
-                            bookingAction(jsonObject);
-                        });
+                String jsonStr = EntityUtils.toString(entity);
+                try {
+                    JSON.parseArray(jsonStr).stream().map(obj -> (JSONObject) obj).filter(jsonObject ->
+                            PropertiesUtils.getProperty("parser.bdgj.doctor.code").equals(jsonObject.get("DoctorCode"))
+                                    && Integer.parseInt(ObjectUtils.defaultIfNull(jsonObject.get("AvailableNumber"), "0").toString()) > 0)
+                            .forEach(jsonObject -> {
+                                logger.info("[{}]:找到医生[{}]的预约号!开始挂号...", id, PropertiesUtils.getProperty("parser.bdgj.doctor.name"));
+                                bookingAction(jsonObject);
+                            });
+                } catch (Exception e1) {
+                    logger.info(jsonStr);
+                }
             }
         } catch (Exception e) {
             logger.error("[" + id + "]: 执行失败！", e);
