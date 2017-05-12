@@ -1,8 +1,8 @@
-package com.maeagle.parser.service;
+package com.maeagle.parser.service.bdgj;
 
-import com.halo.core.common.PropertiesUtils;
+import com.halo.core.common.util.PropertiesUtils;
 import com.halo.core.init.InitializingTask;
-import com.maeagle.parser.business.BookOrderExecutor;
+import com.maeagle.parser.business.bdgj.BookOrderExecutor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import java.util.Arrays;
 /**
  * Created by maeagle on 16/3/6.
  */
-@Service("bookingTask")
+//@Service("bookingTask")
 public class BookingTask extends InitializingTask {
 
     private static Logger logger = LoggerFactory.getLogger(BookingTask.class);

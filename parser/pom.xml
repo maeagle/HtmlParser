@@ -34,12 +34,12 @@
         <!--对halo的依赖 -->
         <dependency>
             <groupId>com.halo</groupId>
-            <artifactId>halo-core</artifactId>
+            <artifactId>halo-suite</artifactId>
             <version>${halo_core_version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.alibaba</groupId>
-                    <artifactId>dubbo</artifactId>
+                    <groupId>com.halo</groupId>
+                    <artifactId>halo-dubbo</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -72,6 +72,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup_version}</version>
+        </dependency>
         <!--日志依赖 -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -95,6 +100,12 @@
             <version>${junit_version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring_version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -103,17 +114,17 @@
 
         <!-- 对依赖的根组件(root jar)的版本维护 -->
         <java_version>1.8</java_version>
-        <halo_core_version>1.0.4-SNAPSHOT</halo_core_version>
+        <halo_core_version>3.0.0-SNAPSHOT</halo_core_version>
         <servlet_version>3.1.0</servlet_version>
-        <spring_version>4.2.4.RELEASE</spring_version>
-        <quartz_version>2.2.2</quartz_version>
+        <spring_version>4.3.3.RELEASE</spring_version>
+        <quartz_version>2.2.3</quartz_version>
         <mysql_driver_version>5.1.38</mysql_driver_version>
         <http_client_version>4.5.1</http_client_version>
-        <jsoup_version>1.8.3</jsoup_version>
+        <jsoup_version>1.10.2</jsoup_version>
         <commons_lang3_version>3.4</commons_lang3_version>
-        <commons_beanutils_version>1.9.2</commons_beanutils_version>
-        <slf4j_version>1.7.13</slf4j_version>
-        <logback_version>1.1.3</logback_version>
+        <commons_beanutils_version>1.9.3</commons_beanutils_version>
+        <slf4j_version>1.7.21</slf4j_version>
+        <logback_version>1.1.7</logback_version>
         <junit_version>4.12</junit_version>
     </properties>
 

@@ -1,8 +1,8 @@
-package com.maeagle.parser.business;
+package com.maeagle.parser.business.bdgj;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.halo.core.common.PropertiesUtils;
+import com.halo.core.common.util.PropertiesUtils;
 import com.maeagle.parser.utils.EncodingUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.HttpEntity;

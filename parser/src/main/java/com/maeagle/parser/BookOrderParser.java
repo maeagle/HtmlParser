@@ -1,7 +1,7 @@
 package com.maeagle.parser;
 
-import com.halo.core.common.PropertiesUtils;
-import com.maeagle.parser.business.BookOrderExecutor;
+import com.halo.core.common.util.PropertiesUtils;
+import com.maeagle.parser.business.bdgj.BookOrderExecutor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
