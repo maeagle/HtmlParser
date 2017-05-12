@@ -1,3 +1,5 @@
 *.iml
 target
 parser/log
+logs
+parser/logs
