@@ -69,8 +69,10 @@ public class WriteLogExecutor implements Runnable {
         List<LogInfo> logInfoList = new ArrayList<>();
         while (cursor.compareTo(target) <= 0) {
 
-            if (cursor.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || cursor.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
+            if (cursor.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || cursor.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+                cursor.add(Calendar.DATE, 1);
                 continue;
+            }
             cursor.set(Calendar.HOUR, 9);
             cursor.set(Calendar.MINUTE, 0);
             cursor.set(Calendar.SECOND, 0);
