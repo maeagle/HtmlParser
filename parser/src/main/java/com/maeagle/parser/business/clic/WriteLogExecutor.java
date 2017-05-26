@@ -105,11 +105,6 @@ public class WriteLogExecutor implements Runnable {
                 new WrittingThread(httpClient, id, user, logInfoList).run();
 //                new Thread(new WrittingThread(httpClient, id, user, logInfoList)).start();
                 logInfoList = new ArrayList<>();
-                try {
-                    Thread.sleep(10000);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         }
         if (!logInfoList.isEmpty())

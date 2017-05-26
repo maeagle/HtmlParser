@@ -4,7 +4,6 @@ import com.halo.core.common.util.CommonUtils;
 import com.halo.core.common.util.PropertiesUtils;
 import com.maeagle.parser.models.clic.AccountInfo;
 import com.maeagle.parser.models.clic.LogInfo;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -47,6 +46,7 @@ public class WrittingThread implements Runnable {
             try {
                 logger.info("[{}]: 为账号 {} 编写 {} 的日志...", id, user.getUserName(), CommonUtils.convertDateToStr(logInfo.getStartTime(), CommonUtils.YYYY_MM_DD_HH_MM_SS));
                 createLog(httpClient, user, logInfo);
+                Thread.sleep(1000);
             } catch (Exception e) {
                 logger.error("[" + id + "]: 账号：" + user.getUserName() + " 日志编写失败！");
                 logger.error(e.getMessage(), e);
