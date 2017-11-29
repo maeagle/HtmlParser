@@ -57,6 +57,11 @@
         </dependency>
         <!--各类工具的依赖 -->
         <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>${freemarker_version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons_lang3_version}</version>
@@ -123,6 +128,7 @@
         <jsoup_version>1.10.2</jsoup_version>
         <commons_lang3_version>3.4</commons_lang3_version>
         <commons_beanutils_version>1.9.3</commons_beanutils_version>
+        <freemarker_version>2.3.23</freemarker_version>
         <slf4j_version>1.7.21</slf4j_version>
         <logback_version>1.1.7</logback_version>
         <junit_version>4.12</junit_version>
