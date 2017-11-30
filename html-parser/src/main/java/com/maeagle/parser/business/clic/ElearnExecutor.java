@@ -31,9 +31,9 @@ public class ElearnExecutor implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ElearnExecutor.class);
 
-    private static Pattern pattern = Pattern.compile("\\d+");
+    private static Pattern PAGE_COUNT_REG = Pattern.compile(".+\\d+.+(\\d+).+\\d+");
 
-    private static Pattern icr_id_pattern = Pattern.compile("\\?icrId=(\\d+)");
+    private static Pattern ICR_ID_REG = Pattern.compile("\\?icrId=(\\d+)");
 
     private String sessionId;
 
@@ -45,12 +45,10 @@ public class ElearnExecutor implements Runnable {
 
     private BasicCookieStore cookieStore;
 
-    public ElearnExecutor(CloseableHttpClient httpClient, BasicCookieStore cookieStore, AccountInfo user,
-                          int topPageCount) {
+    public ElearnExecutor(CloseableHttpClient httpClient, BasicCookieStore cookieStore, AccountInfo user) {
         this.httpClient = httpClient;
         this.cookieStore = cookieStore;
         this.user = user;
-        this.topPageCount = topPageCount;
     }
 
     @Override
@@ -120,16 +118,15 @@ public class ElearnExecutor implements Runnable {
                     ClassInfo classInfo = new ClassInfo();
                     classInfo.className = classInfoEle.select("td.coursename").text();
                     classInfo.accessUrl = classInfoEle.select("td.tp_start").select("a").attr("href");
-                    Matcher matcher = icr_id_pattern.matcher(classInfo.accessUrl);
+                    Matcher matcher = ICR_ID_REG.matcher(classInfo.accessUrl);
                     matcher.find();
                     classInfo.icr_id = matcher.group(1);
                     classList.add(classInfo);
                 }
                 String footerString = htmlDoc.select("td:has(b)").select("b").text();
-                Matcher matcher = pattern.matcher(footerString);
+                Matcher matcher = PAGE_COUNT_REG.matcher(footerString);
                 matcher.find();
-                matcher.find();
-                maxPageNo = Integer.parseInt(matcher.group());
+                maxPageNo = Integer.parseInt(matcher.group(1));
             }
             currentPageNo = nextPageNo;
             nextPageNo++;

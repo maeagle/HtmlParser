@@ -8,6 +8,7 @@ import com.maeagle.parser.models.clic.elearn.LessionInfo;
 import com.maeagle.parser.utils.TemplateUtils;
 import freemarker.template.Template;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -89,6 +90,7 @@ public class ElearnThread implements Runnable {
             getAndSetValues(httpClient);
             getAndSetLessions(httpClient);
             study(httpClient);
+            refresh(httpClient);
             logger.info("[{}]: 账号 {} 完成了 [{}] 课程的学习。", sessionId, user.userName, classInfo.className);
         } catch (Exception e) {
             logger.error("[{}]: 账号 {} 学习 [{}] 课程失败！", sessionId, user.userName, classInfo.className);
@@ -235,7 +237,7 @@ public class ElearnThread implements Runnable {
             data.put("scope_id", "582B0598C56FF462072D6300DC42C38F777");
             data.put("session_id", sessionId);
             data.put("lession_id", lession.lessionId);
-            data.put("start_time", URLEncoder.encode(CommonUtils.convertDateToStr(new Date()
+            data.put("start_time", URLEncoder.encode(CommonUtils.convertDateToStr(DateUtils.addDays(new Date(), -1)
                     , CommonUtils.YYYY_MM_DD_HH_MM_SS), "UTF-8"));
             data.put("icr_id", classInfo.icr_id);
             data.put("tbc_id", classInfo.tbc_id);
@@ -258,6 +260,18 @@ public class ElearnThread implements Runnable {
                 if (!responseStr.contains("success"))
                     throw new Exception("学习 [" + lession.lessionName + "] 课程失败。报文如下：\n" + responseStr);
             }
+        }
+    }
+
+    private void refresh(CloseableHttpClient httpclient) throws Exception {
+
+        String responseStr = "";
+        HttpUriRequest request2 = RequestBuilder.get()
+                .setUri(String.format(PropertiesUtils.getProperty("parser.clic.elearn.url.refresh"), classInfo.icr_id))
+                .build();
+        try (CloseableHttpResponse response = httpclient.execute(request2)) {
+            responseStr = EntityUtils.toString(response.getEntity());
+
         }
     }
 }

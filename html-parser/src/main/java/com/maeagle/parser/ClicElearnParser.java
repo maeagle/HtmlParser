@@ -26,7 +26,7 @@ public class ClicElearnParser {
             account.userName = PropertiesUtils.getProperty("parser.clic.elearn.account.username");
             account.password = PropertiesUtils.getProperty("parser.clic.elearn.account.password");
 
-            ElearnExecutor executor = new ElearnExecutor(httpclient, cookieStore, account, 2);
+            ElearnExecutor executor = new ElearnExecutor(httpclient, cookieStore, account);
             executor.run();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
