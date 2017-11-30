@@ -31,7 +31,7 @@ public class ElearnExecutor implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ElearnExecutor.class);
 
-    private static Pattern PAGE_COUNT_REG = Pattern.compile(".+\\d+.+(\\d+).+\\d+");
+    private static Pattern PAGE_COUNT_REG = Pattern.compile("\\d+");
 
     private static Pattern ICR_ID_REG = Pattern.compile("\\?icrId=(\\d+)");
 
@@ -126,7 +126,8 @@ public class ElearnExecutor implements Runnable {
                 String footerString = htmlDoc.select("td:has(b)").select("b").text();
                 Matcher matcher = PAGE_COUNT_REG.matcher(footerString);
                 matcher.find();
-                maxPageNo = Integer.parseInt(matcher.group(1));
+                matcher.find();
+                maxPageNo = Integer.parseInt(matcher.group());
             }
             currentPageNo = nextPageNo;
             nextPageNo++;
