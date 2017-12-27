@@ -36,6 +36,7 @@
             <groupId>com.halo</groupId>
             <artifactId>halo-suite</artifactId>
             <version>${halo_core_version}</version>
+            <type>pom</type>
             <exclusions>
                 <exclusion>
                     <groupId>com.halo</groupId>
