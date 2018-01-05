@@ -2,8 +2,8 @@ package com.maeagle.parser.business.clic;
 
 import com.halo.core.common.util.CommonUtils;
 import com.halo.core.common.util.PropertiesUtils;
-import com.maeagle.parser.models.clic.log.AccountInfo;
-import com.maeagle.parser.models.clic.log.LogInfo;
+import com.maeagle.parser.models.clic.itlog.AccountInfo;
+import com.maeagle.parser.models.clic.itlog.LogInfo;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
